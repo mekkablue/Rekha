@@ -1,0 +1,159 @@
+# encoding: utf-8
+
+###########################################################################################################
+#
+#
+#	Filter with dialog Plugin
+#
+#	Read the docs:
+#	https://github.com/schriftgestalt/GlyphsSDK/tree/master/Python%20Templates/Filter%20with%20Dialog
+#
+#	For help on the use of Interface Builder:
+#	https://github.com/schriftgestalt/GlyphsSDK/tree/master/Python%20Templates
+#
+#
+###########################################################################################################
+
+
+from GlyphsApp.plugins import *
+from GlyphsApp import LINE
+
+class RekhaMaker(FilterWithDialog):
+
+	# Definitions of IBOutlets
+	
+	# The NSView object from the User Interface. Keep this here!
+	dialog = objc.IBOutlet()
+
+	# Text fields in dialog
+	rekhaHeightField = objc.IBOutlet()
+	rekhaThicknessField = objc.IBOutlet()
+	rekhaOvershootField = objc.IBOutlet()
+	
+	def settings(self):
+		self.menuName = u'RekhaMaker'
+		self.actionButtonLabel = 'Insert'
+		
+		# supported scripts:
+		self.supportedScripts = ("gurmukhi","devanagari","bengali")
+		
+		# Load dialog from .nib (without .extension)
+		self.loadNib('IBdialog', __file__)
+
+	# On dialog show
+	def start(self):
+
+		# Set default setting if not present
+		if not Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight']:
+			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'] = 700.0
+		if not Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness']:
+			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'] = 100.0
+		if not Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot']:
+			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'] = 20.0
+
+		# Set value of text field
+		self.rekhaHeightField.setStringValue_(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'])
+		self.rekhaThicknessField.setStringValue_(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'])
+		self.rekhaOvershootField.setStringValue_(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'])
+		
+		# Set focus to text field
+		self.rekhaHeightField.becomeFirstResponder()
+
+	# Action triggered by UI
+	@objc.IBAction
+	def setRekhaHeight_( self, sender ):
+		# Store value coming in from dialog
+		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'] = sender.floatValue()
+		# Trigger redraw
+		self.update()
+
+	@objc.IBAction
+	def setRekhaThickness_( self, sender ):
+		# Store value coming in from dialog
+		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'] = sender.floatValue()
+		# Trigger redraw
+		self.update()
+
+	@objc.IBAction
+	def setRekhaOvershoot_( self, sender ):
+		# Store value coming in from dialog
+		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'] = sender.floatValue()
+		# Trigger redraw
+		self.update()
+
+	# Actual filter
+	def filter(self, layer, inEditView, customParameters):
+		
+		# Called on font export, get value from customParameters
+		if customParameters:
+			if customParameters.has_key('height'):
+				rekhaHeight = customParameters['height']
+			else:
+				rekhaHeight = 700.0
+				
+			if customParameters.has_key('thickness'):
+				rekhaThickness = customParameters['thickness']
+			else:
+				rekhaThickness = 100.0
+				
+			if customParameters.has_key('overshoot'):
+				rekhaOvershoot = customParameters['overshoot']
+			else:
+				rekhaOvershoot = 20.0
+
+		# Called through UI, use stored value
+		else:
+			rekhaHeight = float(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'])
+			rekhaThickness = float(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'])
+			rekhaOvershoot = float(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'])
+
+		# Shift all nodes in x and y direction by the value
+		thisGlyph = layer.glyph()
+		if thisGlyph.script in self.supportedScripts:
+			if thisGlyph.category == "Letter":
+				
+				# determine rekha origin:
+				xOrigin = -rekhaOvershoot
+				if layer.anchors["rekha"]:
+					xOrigin = layer.anchors["rekha"].position.x
+				
+				# define rekha rectangle:
+				rekha = NSRect()
+				rekha.origin = NSPoint( xOrigin, rekhaHeight )
+				rekha.size = NSSize( layer.width + rekhaOvershoot - xOrigin, rekhaThickness )
+				self.drawRectInLayer( rekha, layer )
+	
+	def drawRectInLayer(self, rekha, layer):
+		origin = rekha.origin
+		width = rekha.size.width
+		height = rekha.size.height
+		
+		# create rectangle path:
+		rectangle = GSPath()
+		nodePositions = (
+			NSPoint( origin.x,       origin.y ),
+			NSPoint( origin.x+width, origin.y ),
+			NSPoint( origin.x+width, origin.y+height ),
+			NSPoint( origin.x,       origin.y+height ),
+		)
+		for thisPosition in nodePositions:
+			newNode = GSNode()
+			newNode.position = thisPosition
+			newNode.type = LINE
+			rectangle.nodes.append(newNode)
+		rectangle.closed = True
+		
+		# correct path direction:
+		if rectangle.direction != -1:
+			rectangle.reverse()
+		
+		# insert rectangle into layer:
+		layer.paths.append(rectangle)
+	
+	def generateCustomParameter( self ):
+		return "%s; height:%s; thickness:%s; overshoot:%s;" % (
+			self.__class__.__name__, 
+			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'],
+			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'],
+			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'],
+		)
