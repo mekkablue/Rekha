@@ -2,7 +2,13 @@
 
 This is a set of plugins for the [Glyphs font editor](http://glyphsapp.com/) by Georg Seifert.
 
-RekhaViewer *displays*, and RekhaMaker *creates* a Rekha line in your Bengali, Devanagari, or Gurmukhi letters.
+RekhaViewer *displays*, and RekhaMaker *creates* a Rekha line in your Bengali, Devanagari, or Gurmukhi letters. There are three properties you can specify in font units:
+
+- **Height:** the height of the lower edge of the Rekha.
+- **Thickness:** the stroke thickness of the Rekha.
+- **Overshoot:** the amount by which the Rekha will extend beyond the sidebearings.
+
+These properties are supplied differently for each of the plugins. See the usage instructions below for details.
 
 In letters containing a `rekha` anchor, the Rekha line will start at the anchor’s x coordinate. This can be useful in letters such as `au-deva`, which do not have a Rekha line that crosses the complete letter width.
 
