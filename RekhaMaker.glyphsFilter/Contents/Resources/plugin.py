@@ -61,21 +61,21 @@ class RekhaMaker(FilterWithDialog):
 
 	# Action triggered by UI
 	@objc.IBAction
-	def setRekhaHeight_( self, sender ):
+	def setrekhaHeight_( self, sender ):
 		# Store value coming in from dialog
 		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'] = sender.floatValue()
 		# Trigger redraw
 		self.update()
 
 	@objc.IBAction
-	def setRekhaThickness_( self, sender ):
+	def setrekhaThickness_( self, sender ):
 		# Store value coming in from dialog
 		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'] = sender.floatValue()
 		# Trigger redraw
 		self.update()
 
 	@objc.IBAction
-	def setRekhaOvershoot_( self, sender ):
+	def setrekhaOvershoot_( self, sender ):
 		# Store value coming in from dialog
 		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'] = sender.floatValue()
 		# Trigger redraw
@@ -114,6 +114,16 @@ class RekhaMaker(FilterWithDialog):
 				
 				# determine rekha origin:
 				xOrigin = -rekhaOvershoot
+				
+				# draw rekha from the left if there is a stop anchor:
+				if layer.anchors["rekha_stop"]:
+					stopPosition = layer.anchors["rekha_stop"].position.x
+					leftRekha = NSRect()
+					leftRekha.origin = NSPoint( xOrigin, rekhaHeight )
+					leftRekha.size = NSSize( stopPosition-xOrigin, rekhaThickness )
+					self.drawRectInLayer( leftRekha, layer )
+				
+				# draw a rekha from the middle to the right if there is a rekha anchor:
 				if layer.anchors["rekha"]:
 					xOrigin = layer.anchors["rekha"].position.x
 				

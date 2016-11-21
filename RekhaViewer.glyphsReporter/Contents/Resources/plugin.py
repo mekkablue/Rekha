@@ -47,6 +47,14 @@ class RekhaViewer(ReporterPlugin):
 					RekhaOvershoot = defaults[2]
 		
 				xOrigin = -RekhaOvershoot
+
+				if layer.anchors["rekha_stop"]:
+					stopPosition = layer.anchors["rekha_stop"].position.x
+					LeftRekha = NSRect()
+					LeftRekha.origin = NSPoint(xOrigin, RekhaHeight)
+					LeftRekha.size = NSSize(stopPosition-xOrigin, RekhaThickness)
+					NSBezierPath.fillRect_(LeftRekha)
+
 				if layer.anchors["rekha"]:
 					xOrigin = layer.anchors["rekha"].position.x
 		
