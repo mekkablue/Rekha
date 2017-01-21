@@ -29,6 +29,7 @@ class RekhaMaker(FilterWithDialog):
 	rekhaHeightField = objc.IBOutlet()
 	rekhaThicknessField = objc.IBOutlet()
 	rekhaOvershootField = objc.IBOutlet()
+	rekhaDecomposeCheckbox = objc.IBOutlet()
 	
 	def settings(self):
 		self.menuName = u'RekhaMaker'
@@ -50,11 +51,14 @@ class RekhaMaker(FilterWithDialog):
 			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'] = 100.0
 		if not Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot']:
 			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'] = 20.0
+		if not Glyphs.defaults['com.mekkablue.RekhaMaker.decompose']:
+			Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'] = False
 
 		# Set value of text field
 		self.rekhaHeightField.setStringValue_(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'])
 		self.rekhaThicknessField.setStringValue_(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'])
 		self.rekhaOvershootField.setStringValue_(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'])
+		self.rekhaDecomposeCheckbox.setIntegerValue_(Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'])
 		
 		# Set focus to text field
 		self.rekhaHeightField.becomeFirstResponder()
@@ -81,6 +85,13 @@ class RekhaMaker(FilterWithDialog):
 		# Trigger redraw
 		self.update()
 
+	@objc.IBAction
+	def setDecompose_( self, sender ):
+		# Store value coming in from dialog
+		Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'] = sender.intValue()
+		# Trigger redraw
+		self.update()
+
 	# Actual filter
 	def filter(self, layer, inEditView, customParameters):
 		
@@ -101,11 +112,17 @@ class RekhaMaker(FilterWithDialog):
 			else:
 				rekhaOvershoot = 20.0
 
+			if customParameters.has_key('decompose'):
+				decompose = bool(customParameters['decompose'])
+			else:
+				decompose = False
+
 		# Called through UI, use stored value
 		else:
 			rekhaHeight = float(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'])
 			rekhaThickness = float(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'])
 			rekhaOvershoot = float(Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'])
+			decompose = bool(Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'])
 
 		# Shift all nodes in x and y direction by the value
 		thisGlyph = layer.glyph()
@@ -132,6 +149,9 @@ class RekhaMaker(FilterWithDialog):
 				rekha.origin = NSPoint( xOrigin, rekhaHeight )
 				rekha.size = NSSize( layer.width + rekhaOvershoot - xOrigin, rekhaThickness )
 				self.drawRectInLayer( rekha, layer )
+				
+				if decompose:
+					layer.decomposeComponents()
 	
 	def drawRectInLayer(self, rekha, layer):
 		origin = rekha.origin
@@ -161,9 +181,10 @@ class RekhaMaker(FilterWithDialog):
 		layer.paths.append(rectangle)
 	
 	def generateCustomParameter( self ):
-		return "%s; height:%s; thickness:%s; overshoot:%s;" % (
+		return "%s; height:%s; thickness:%s; overshoot:%s; decompose:%s" % (
 			self.__class__.__name__, 
 			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'],
 			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'],
 			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'],
+			Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'],
 		)
