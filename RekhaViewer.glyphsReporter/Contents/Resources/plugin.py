@@ -66,30 +66,17 @@ class RekhaViewer(ReporterPlugin):
 	def background(self, layer):
 		NSColor.grayColor().set()
 		self.drawRekha(layer)
-
+	
+	def needsExtraMainOutlineDrawingForInactiveLayer_(self, Layer):
+		return True
+	
 	def inactiveLayers(self, layer):
+		# draw rekha:
 		NSColor.blackColor().set()
-		
-		# draw letter
-		if layer.paths:
-			layer.bezierPath.fill()
-		if layer.components:
-			for component in layer.components:
-				component.bezierPath.fill()
-		
-		# draw rekha:
 		self.drawRekha(layer)
-
+	
 	def preview(self, layer):
-		NSColor.orangeColor().set()
-		
-		# draw letter
-		if layer.paths:
-			layer.bezierPath.fill()
-		if layer.components:
-			for component in layer.components:
-				component.bezierPath.fill()
-		
 		# draw rekha:
+		NSColor.orangeColor().set()
 		self.drawRekha(layer)
 		
