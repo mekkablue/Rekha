@@ -16,7 +16,7 @@
 
 import objc
 from GlyphsApp.plugins import *
-from GlyphsApp import LINE
+from GlyphsApp import *
 
 class RekhaMaker(FilterWithDialog):
 
