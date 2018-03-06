@@ -138,7 +138,7 @@ class RekhaMaker(FilterWithDialog):
 					leftRekha = NSRect()
 					leftRekha.origin = NSPoint( xOrigin, rekhaHeight )
 					leftRekha.size = NSSize( stopPosition-xOrigin, rekhaThickness )
-					self.drawRectInLayer( leftRekha, layer )
+					self.drawRekhaInLayer( leftRekha, layer )
 				
 				# draw a rekha from the middle to the right if there is a rekha anchor:
 				if layer.anchors["rekha"]:
@@ -148,12 +148,12 @@ class RekhaMaker(FilterWithDialog):
 				rekha = NSRect()
 				rekha.origin = NSPoint( xOrigin, rekhaHeight )
 				rekha.size = NSSize( layer.width + rekhaOvershoot - xOrigin, rekhaThickness )
-				self.drawRectInLayer( rekha, layer )
+				self.drawRekhaInLayer( rekha, layer )
 				
 				if decompose:
 					layer.decomposeComponents()
 	
-	def drawRectInLayer(self, rekha, layer):
+	def drawRekhaInLayer(self, rekha, layer):
 		origin = rekha.origin
 		width = rekha.size.width
 		height = rekha.size.height
@@ -176,9 +176,22 @@ class RekhaMaker(FilterWithDialog):
 		# correct path direction:
 		if rectangle.direction != -1:
 			rectangle.reverse()
-		
+			
 		# insert rectangle into layer:
 		layer.paths.append(rectangle)
+
+		# add caps if present in font:
+		font = layer.parent.parent
+		if font:
+			capName = "_cap.rekha"
+			if font.glyphs[capName]:
+				for i in (-1,1):
+					cap = GSHint()
+					cap.type = CAP
+					cap.name = capName
+					cap.originNode = rectangle.nodes[i]
+					cap.setOptions_(3) # fit
+					layer.addHint_(cap)
 	
 	def generateCustomParameter( self ):
 		return "%s; height:%s; thickness:%s; overshoot:%s; decompose:%s" % (

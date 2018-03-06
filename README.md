@@ -48,6 +48,10 @@ Alternatively, you can also use it as a custom parameter on the whole font at ex
 
 Using `PreFilter` makes sure you can use the Remove Overlap option in the Export dialog. (If used as `Filter`, you need to add a `Filter:RemoveOverlap;` parameter after it.)
 
+### Cap Component
+
+If you have a cap component called `_cap.rekha` in your font, it will be automatically inserted (and fitted) at the end of your Rekha.
+
 ### Requirements
 
 The plugin needs Glyphs 2.3.1 or higher, running on OS X 10.9 or later. I can only test it in current OS versions, and I assume it will not work in older versions.
