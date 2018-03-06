@@ -176,9 +176,22 @@ class RekhaMaker(FilterWithDialog):
 		# correct path direction:
 		if rectangle.direction != -1:
 			rectangle.reverse()
-		
+			
 		# insert rectangle into layer:
 		layer.paths.append(rectangle)
+
+		# add caps if present in font:
+		font = layer.parent.parent
+		if font:
+			capName = "_cap.rekha"
+			if font.glyphs[capName]:
+				for i in (-1,1):
+					cap = GSHint()
+					cap.type = CAP
+					cap.name = capName
+					cap.originNode = rectangle.nodes[i]
+					cap.setOptions_(3) # fit
+					layer.addHint_(cap)
 	
 	def generateCustomParameter( self ):
 		return "%s; height:%s; thickness:%s; overshoot:%s; decompose:%s" % (
