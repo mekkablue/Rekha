@@ -19,9 +19,19 @@ class RekhaViewer(ReporterPlugin):
 	def settings(self):
 		self.menuName = u'Rekha'
 	
-	def rekhaBezierForMasterID(self, rekha, masterID, capName=""):
-		layer = GSLayer()
-		layer.setAssociatedMasterId_(masterID)
+	def rekhaBezierForMasterIDWithCapInFont(self, rekha, masterID, capName="", font=None):
+		glyph = GSGlyph()
+		if font:
+			glyph.parent = font
+		elif Glyphs.font:
+			glyph.parent = Glyphs.font
+		else:
+			return None
+			
+		layer = glyph.layers[masterID]
+		if layer is None:
+			return None
+			
 		origin = rekha.origin
 		width = rekha.size.width
 		height = rekha.size.height
@@ -62,7 +72,7 @@ class RekhaViewer(ReporterPlugin):
 	def drawRekha(self, layer):
 		defaults = (700,100,20) # height, thickness, overshoot
 		thisGlyph = layer.glyph()
-		if thisGlyph.script in ("gurmukhi","devanagari","bengali"):
+		if thisGlyph and thisGlyph.script in ("gurmukhi","devanagari","bengali"):
 			if thisGlyph.category == "Letter":
 				RekhaInfo = layer.associatedFontMaster().customParameters["rekha"]
 				if not RekhaInfo:
@@ -100,7 +110,7 @@ class RekhaViewer(ReporterPlugin):
 					LeftRekha = NSRect()
 					LeftRekha.origin = NSPoint(xOrigin, RekhaHeight)
 					LeftRekha.size = NSSize(stopPosition-xOrigin, RekhaThickness)
-					LeftRekhaBezierPath = self.rekhaBezierForMasterID(LeftRekha, layer.associatedMasterId, capName)
+					LeftRekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(LeftRekha, layer.associatedMasterId, capName, font)
 					LeftRekhaBezierPath.fill()
 					
 				if layer.anchors["rekha"]:
@@ -109,8 +119,10 @@ class RekhaViewer(ReporterPlugin):
 				Rekha = NSRect()
 				Rekha.origin = NSPoint(xOrigin, RekhaHeight)
 				Rekha.size = NSSize(layer.width+RekhaOvershoot-xOrigin, RekhaThickness)
-				RekhaBezierPath = self.rekhaBezierForMasterID(Rekha, layer.associatedMasterId, capName)
-				RekhaBezierPath.fill()
+				RekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(Rekha, layer.associatedMasterId, capName)
+				# only draw if not None:
+				if RekhaBezierPath:
+					RekhaBezierPath.fill()
 	
 	def background(self, layer):
 		NSColor.grayColor().set()
