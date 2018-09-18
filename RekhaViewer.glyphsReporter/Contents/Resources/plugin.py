@@ -19,7 +19,7 @@ class RekhaViewer(ReporterPlugin):
 	def settings(self):
 		self.menuName = u'Rekha'
 	
-	def rekhaBezierForMasterIDWithCapInFont(self, rekha, masterID, capName="", font=None):
+	def rekhaBezierForMasterIDWithCapInFont(self, rekha, masterID, leftCap=None, rightCap=None, font=None):
 		glyph = GSGlyph()
 		if font:
 			glyph.parent = font
@@ -58,14 +58,19 @@ class RekhaViewer(ReporterPlugin):
 		# insert rectangle into layer:
 		layer.paths.append(rectangle)
 		
-		for i in (-1,1):
-			cap = GSHint()
-			cap.type = CAP
-			cap.name = capName
-			cap.originNode = rectangle.nodes[i]
-			cap.setOptions_(3) # fit
-			layer.addHint_(cap)
-		
+		# add caps if present in font:
+		if rightCap or leftCap:
+			caps = (None, rightCap, leftCap)
+			for i in (-1,1):
+				if caps[i] != None and caps[i].startswith("_cap."):
+					cap = GSHint()
+					cap.type = CAP
+					cap.name = caps[i]
+					cap.originNode = rectangle.nodes[i]
+					cap.setOptions_(3) # fit
+					layer.addHint_(cap)
+			layer.decomposeCorners()
+			
 		# return the NSBezierPath
 		return layer.bezierPath
 	
@@ -99,18 +104,23 @@ class RekhaViewer(ReporterPlugin):
 				xOrigin = -RekhaOvershoot
 				
 				# add caps if present in font:
-				capName = None
+				leftCap, rightCap = None, None
 				font = layer.parent.parent
 				if font:
-					if font.glyphs["_cap.rekha"]:
-						capName = "_cap.rekha"
+					generalCap = "_cap.rekha"
+					if font.glyphs[generalCap]:
+						leftCap, rightCap = generalCap, generalCap
+					if font.glyphs[generalCap+"Left"]:
+						leftCap = generalCap+"Left"
+					if font.glyphs[generalCap+"Right"]:
+						rightCap = generalCap+"Right"
 				
 				if layer.anchors["rekha_stop"]:
 					stopPosition = layer.anchors["rekha_stop"].position.x
 					LeftRekha = NSRect()
 					LeftRekha.origin = NSPoint(xOrigin, RekhaHeight)
 					LeftRekha.size = NSSize(stopPosition-xOrigin, RekhaThickness)
-					LeftRekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(LeftRekha, layer.associatedMasterId, capName, font)
+					LeftRekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(LeftRekha, layer.associatedMasterId, leftCap, rightCap, font)
 					LeftRekhaBezierPath.fill()
 					
 				if layer.anchors["rekha"]:
@@ -119,7 +129,7 @@ class RekhaViewer(ReporterPlugin):
 				Rekha = NSRect()
 				Rekha.origin = NSPoint(xOrigin, RekhaHeight)
 				Rekha.size = NSSize(layer.width+RekhaOvershoot-xOrigin, RekhaThickness)
-				RekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(Rekha, layer.associatedMasterId, capName)
+				RekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(Rekha, layer.associatedMasterId, leftCap, rightCap)
 				# only draw if not None:
 				if RekhaBezierPath:
 					RekhaBezierPath.fill()
@@ -132,6 +142,7 @@ class RekhaViewer(ReporterPlugin):
 		return True
 	
 	def inactiveLayers(self, layer):
+		print "!",
 		# draw rekha:
 		NSColor.blackColor().set()
 		self.drawRekha(layer)
