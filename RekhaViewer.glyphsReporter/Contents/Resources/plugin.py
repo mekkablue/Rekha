@@ -142,7 +142,6 @@ class RekhaViewer(ReporterPlugin):
 		return True
 	
 	def inactiveLayers(self, layer):
-		print "!",
 		# draw rekha:
 		NSColor.blackColor().set()
 		self.drawRekha(layer)
