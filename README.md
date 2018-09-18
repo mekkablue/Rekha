@@ -52,6 +52,8 @@ Using `PreFilter` makes sure you can use the Remove Overlap option in the Export
 
 If you have a cap component called `_cap.rekha` in your font, it will be automatically inserted (and fitted) at the end of your Rekha.
 
+Power user tip: If you want to have different Rekhas for the left and right end of the stroke, call them `_cap.rekhaLeft` and/or `_cap.rekhaRight`, respectively.
+
 ### Requirements
 
 The plugin needs Glyphs 2.3.1 or higher, running on OS X 10.9 or later. I can only test it in current OS versions, and I assume it will not work in older versions.
