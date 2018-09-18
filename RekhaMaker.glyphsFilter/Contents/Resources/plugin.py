@@ -181,14 +181,27 @@ class RekhaMaker(FilterWithDialog):
 		layer.paths.append(rectangle)
 
 		# add caps if present in font:
-		font = layer.parent.parent
+		font = layer.font()
 		if font:
-			capName = "_cap.rekha"
-			if font.glyphs[capName]:
-				for i in (-1,1):
+			capName      = "_cap.rekha"
+			capNameLeft  = capName + "Left"
+			capNameRight = capName + "Right"
+			capNames = (capName,capNameRight,capNameLeft)
+
+			for i in (-1,1):
+				
+				# determine if a left or right or a general cap is present:
+				insertedCapName = None
+				if font.glyphs[capNames[i]]:
+					insertedCapName = capNames[i]
+				elif font.glyphs[capNames[0]]:
+					insertedCapName = capNames[0]
+				
+				# if so, add the cap on the appropriate node:
+				if insertedCapName:
 					cap = GSHint()
 					cap.type = CAP
-					cap.name = capName
+					cap.name = insertedCapName
 					cap.originNode = rectangle.nodes[i]
 					cap.setOptions_(3) # fit
 					layer.addHint_(cap)
