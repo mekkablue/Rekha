@@ -20,7 +20,7 @@ class RekhaViewer(ReporterPlugin):
 	
 	@objc.python_method
 	def settings(self):
-		self.menuName = u'Rekha'
+		self.menuName = 'Rekha'
 	
 	@objc.python_method
 	def rekhaBezierForMasterIDWithCapInFont(self, rekha, masterID, leftCap=None, rightCap=None, font=None):
@@ -147,7 +147,6 @@ class RekhaViewer(ReporterPlugin):
 		NSColor.grayColor().set()
 		self.drawRekha(layer)
 	
-	@objc.python_method
 	def needsExtraMainOutlineDrawingForInactiveLayer_(self, Layer):
 		return True
 	
