@@ -60,7 +60,10 @@ class RekhaViewer(ReporterPlugin):
 			rectangle.reverse()
 			
 		# insert rectangle into layer:
-		layer.paths.append(rectangle)
+		try:
+			layer.shapes.append(rectangle)
+		except:
+			layer.paths.append(rectangle)
 		
 		# add caps if present in font:
 		if rightCap or leftCap:
@@ -149,7 +152,7 @@ class RekhaViewer(ReporterPlugin):
 		return True
 	
 	@objc.python_method
-	def inactiveLayers(self, layer):
+	def inactiveLayer(self, layer):
 		# draw rekha:
 		NSColor.blackColor().set()
 		self.drawRekha(layer)
