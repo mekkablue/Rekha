@@ -1,4 +1,5 @@
 # encoding: utf-8
+from __future__ import division, print_function, unicode_literals
 
 ###########################################################################################################
 #
@@ -15,8 +16,8 @@
 ###########################################################################################################
 
 import objc
-from GlyphsApp.plugins import *
 from GlyphsApp import *
+from GlyphsApp.plugins import *
 
 class RekhaMaker(FilterWithDialog):
 
@@ -31,6 +32,7 @@ class RekhaMaker(FilterWithDialog):
 	rekhaOvershootField = objc.IBOutlet()
 	rekhaDecomposeCheckbox = objc.IBOutlet()
 	
+	@objc.python_method
 	def settings(self):
 		self.menuName = u'RekhaMaker'
 		self.actionButtonLabel = 'Insert'
@@ -42,6 +44,7 @@ class RekhaMaker(FilterWithDialog):
 		self.loadNib('IBdialog', __file__)
 
 	# On dialog show
+	@objc.python_method
 	def start(self):
 
 		# Set default setting if not present
@@ -93,6 +96,7 @@ class RekhaMaker(FilterWithDialog):
 		self.update()
 
 	# Actual filter
+	@objc.python_method
 	def filter(self, layer, inEditView, customParameters):
 		
 		# Called on font export, get value from customParameters
@@ -133,7 +137,7 @@ class RekhaMaker(FilterWithDialog):
 				xOrigin = -rekhaOvershoot
 				
 				# draw rekha from the left if there is a stop anchor:
-				if layer.anchors["rekha_stop"]:
+				if layer.anchorForName_("rekha_stop"):
 					stopPosition = layer.anchors["rekha_stop"].position.x
 					leftRekha = NSRect()
 					leftRekha.origin = NSPoint( xOrigin, rekhaHeight )
@@ -141,7 +145,7 @@ class RekhaMaker(FilterWithDialog):
 					self.drawRekhaInLayer( leftRekha, layer )
 				
 				# draw a rekha from the middle to the right if there is a rekha anchor:
-				if layer.anchors["rekha"]:
+				if layer.anchorForName_("rekha"):
 					xOrigin = layer.anchors["rekha"].position.x
 				
 				# define rekha rectangle:
@@ -153,6 +157,7 @@ class RekhaMaker(FilterWithDialog):
 				if decompose:
 					layer.decomposeComponents()
 	
+	@objc.python_method
 	def drawRekhaInLayer(self, rekha, layer):
 		origin = rekha.origin
 		width = rekha.size.width
@@ -178,7 +183,12 @@ class RekhaMaker(FilterWithDialog):
 			rectangle.reverse()
 			
 		# insert rectangle into layer:
-		layer.paths.append(rectangle)
+		try:
+			# GLYPHS 3:
+			layer.shapes.append(rectangle)
+		except:
+			# GLYPHS 2:
+			layer.paths.append(rectangle)
 
 		# add caps if present in font:
 		font = layer.font()
@@ -206,6 +216,7 @@ class RekhaMaker(FilterWithDialog):
 					cap.setOptions_(3) # fit
 					layer.addHint_(cap)
 	
+	@objc.python_method
 	def generateCustomParameter( self ):
 		return "%s; height:%s; thickness:%s; overshoot:%s; decompose:%s" % (
 			self.__class__.__name__, 
@@ -214,3 +225,8 @@ class RekhaMaker(FilterWithDialog):
 			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'],
 			Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'],
 		)
+
+	@objc.python_method
+	def __file__(self):
+		"""Please leave this method unchanged"""
+		return __file__
