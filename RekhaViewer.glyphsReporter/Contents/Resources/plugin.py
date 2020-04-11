@@ -123,7 +123,7 @@ class RekhaViewer(ReporterPlugin):
 					if font.glyphs[generalCap+"Right"]:
 						rightCap = generalCap+"Right"
 				
-				if layer.anchors["rekha_stop"]:
+				if layer.anchorForName_("rekha_stop"):
 					stopPosition = layer.anchors["rekha_stop"].position.x
 					LeftRekha = NSRect()
 					LeftRekha.origin = NSPoint(xOrigin, RekhaHeight)
@@ -131,7 +131,7 @@ class RekhaViewer(ReporterPlugin):
 					LeftRekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(LeftRekha, layer.associatedMasterId, leftCap, rightCap, font)
 					LeftRekhaBezierPath.fill()
 					
-				if layer.anchors["rekha"]:
+				if layer.anchorForName_("rekha"):
 					xOrigin = layer.anchors["rekha"].position.x
 		
 				Rekha = NSRect()
