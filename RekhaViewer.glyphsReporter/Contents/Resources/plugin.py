@@ -1,4 +1,5 @@
 # encoding: utf-8
+from __future__ import division, print_function, unicode_literals
 
 ###########################################################################################################
 #
@@ -11,14 +12,17 @@
 #
 ###########################################################################################################
 
+import objc
 from GlyphsApp import *
 from GlyphsApp.plugins import *
 
 class RekhaViewer(ReporterPlugin):
-
+	
+	@objc.python_method
 	def settings(self):
 		self.menuName = u'Rekha'
 	
+	@objc.python_method
 	def rekhaBezierForMasterIDWithCapInFont(self, rekha, masterID, leftCap=None, rightCap=None, font=None):
 		glyph = GSGlyph()
 		if font:
@@ -74,6 +78,7 @@ class RekhaViewer(ReporterPlugin):
 		# return the NSBezierPath
 		return layer.bezierPath
 	
+	@objc.python_method
 	def drawRekha(self, layer):
 		defaults = (700,100,20) # height, thickness, overshoot
 		thisGlyph = layer.glyph()
@@ -134,20 +139,28 @@ class RekhaViewer(ReporterPlugin):
 				if RekhaBezierPath:
 					RekhaBezierPath.fill()
 	
+	@objc.python_method
 	def background(self, layer):
 		NSColor.grayColor().set()
 		self.drawRekha(layer)
 	
+	@objc.python_method
 	def needsExtraMainOutlineDrawingForInactiveLayer_(self, Layer):
 		return True
 	
+	@objc.python_method
 	def inactiveLayers(self, layer):
 		# draw rekha:
 		NSColor.blackColor().set()
 		self.drawRekha(layer)
 	
+	@objc.python_method
 	def preview(self, layer):
 		# draw rekha:
 		NSColor.orangeColor().set()
 		self.drawRekha(layer)
-		
+
+	@objc.python_method
+	def __file__(self):
+		"""Please leave this method unchanged"""
+		return __file__
