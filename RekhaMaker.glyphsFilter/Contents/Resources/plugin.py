@@ -46,14 +46,44 @@ class RekhaMaker(FilterWithDialog):
 	# On dialog show
 	@objc.python_method
 	def start(self):
-
-		# Set default setting if not present
-		if not Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight']:
-			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'] = 700.0
-		if not Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness']:
-			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'] = 100.0
-		if not Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot']:
-			Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'] = 20.0
+		# fallbacks:
+		rekhaHeight = 700.0
+		rekhaThickness = 100.0
+		rekhaOvershoot = 20.0
+		
+		# Take from prefs if present
+		if Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight']:
+			rekhaHeight = Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight']
+		if Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness']:
+			rekhaThickness = Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness']
+		if Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot']:
+			rekhaOvershoot = Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot']
+		
+		# look for existing parameter:
+		currentFont = Glyphs.font
+		if currentFont:
+			if currentFont.selectedLayers:
+				currentMaster = currentFont.selectedLayers[0].master
+			elif currentFont.selectedFontMaster:
+				currentMaster = currentFont.selectedFontMaster
+			else:
+				currentMaster = None
+		
+		rekhaParameter = currentMaster.customParameters["Rekha"]
+		if rekhaParameter:
+			try:
+				parameterValues = [float(x.strip()) for x in rekhaParameter.split(",")]
+				rekhaHeight = parameterValues[0]
+				rekhaThickness = parameterValues[1]
+				rekhaOvershoot = parameterValues[2]
+			except Exception as e:
+				print("⚠️ Could not read (complete) Rekha parameter value: ‘%s’.\n%s"%(rekhaParameter,e))
+			
+		# Set default setting:
+		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaHeight'] = rekhaHeight
+		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaThickness'] = rekhaThickness
+		Glyphs.defaults['com.mekkablue.RekhaMaker.rekhaOvershoot'] = rekhaOvershoot
+		# Set default setting if not present:
 		if not Glyphs.defaults['com.mekkablue.RekhaMaker.decompose']:
 			Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'] = False
 
@@ -101,22 +131,22 @@ class RekhaMaker(FilterWithDialog):
 		
 		# Called on font export, get value from customParameters
 		if customParameters:
-			if customParameters.has_key('height'):
+			if 'height' in customParameters.keys():
 				rekhaHeight = customParameters['height']
 			else:
 				rekhaHeight = 700.0
 				
-			if customParameters.has_key('thickness'):
+			if 'thickness' in customParameters.keys():
 				rekhaThickness = customParameters['thickness']
 			else:
 				rekhaThickness = 100.0
 				
-			if customParameters.has_key('overshoot'):
+			if 'overshoot' in customParameters.keys():
 				rekhaOvershoot = customParameters['overshoot']
 			else:
 				rekhaOvershoot = 20.0
 
-			if customParameters.has_key('decompose'):
+			if 'decompose' in customParameters.keys():
 				decompose = bool(customParameters['decompose'])
 			else:
 				decompose = False
