@@ -144,7 +144,7 @@ class RekhaViewer(ReporterPlugin):
 	
 	@objc.python_method
 	def background(self, layer):
-		NSColor.grayColor().set()
+		NSColor.placeholderTextColor().set()
 		self.drawRekha(layer)
 	
 	def needsExtraMainOutlineDrawingForInactiveLayer_(self, Layer):
@@ -153,13 +153,13 @@ class RekhaViewer(ReporterPlugin):
 	@objc.python_method
 	def inactiveLayer(self, layer):
 		# draw rekha:
-		NSColor.blackColor().set()
+		NSColor.textColor().set()
 		self.drawRekha(layer)
 	
 	@objc.python_method
 	def preview(self, layer):
 		# draw rekha:
-		NSColor.orangeColor().set()
+		NSColor.textColor().set()
 		self.drawRekha(layer)
 
 	@objc.python_method
