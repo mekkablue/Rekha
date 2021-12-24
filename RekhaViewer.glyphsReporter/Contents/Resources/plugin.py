@@ -152,6 +152,13 @@ class RekhaViewer(ReporterPlugin):
 	
 	@objc.python_method
 	def inactiveLayer(self, layer):
+		# backwards compatibilty
+		# draw rekha:
+		NSColor.textColor().set()
+		self.drawRekha(layer)
+	
+	@objc.python_method
+	def inactiveLayerBackground(self, layer):
 		# draw rekha:
 		NSColor.textColor().set()
 		self.drawRekha(layer)
