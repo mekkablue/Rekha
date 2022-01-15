@@ -159,33 +159,34 @@ class RekhaMaker(FilterWithDialog):
 			decompose = bool(Glyphs.defaults['com.mekkablue.RekhaMaker.decompose'])
 
 		# Shift all nodes in x and y direction by the value
-		thisGlyph = layer.glyph()
-		if thisGlyph.script in self.supportedScripts:
-			if thisGlyph.category == "Letter":
+		if layer:
+			thisGlyph = layer.glyph()
+			if thisGlyph.script in self.supportedScripts:
+				if thisGlyph.category == "Letter":
 				
-				# determine rekha origin:
-				xOrigin = -rekhaOvershoot
+					# determine rekha origin:
+					xOrigin = -rekhaOvershoot
 				
-				# draw rekha from the left if there is a stop anchor:
-				if layer.anchorForName_("rekha_stop"):
-					stopPosition = layer.anchors["rekha_stop"].position.x
-					leftRekha = NSRect()
-					leftRekha.origin = NSPoint( xOrigin, rekhaHeight )
-					leftRekha.size = NSSize( stopPosition-xOrigin, rekhaThickness )
-					self.drawRekhaInLayer( leftRekha, layer )
+					# draw rekha from the left if there is a stop anchor:
+					if layer.anchorForName_("rekha_stop"):
+						stopPosition = layer.anchors["rekha_stop"].position.x
+						leftRekha = NSRect()
+						leftRekha.origin = NSPoint( xOrigin, rekhaHeight )
+						leftRekha.size = NSSize( stopPosition-xOrigin, rekhaThickness )
+						self.drawRekhaInLayer( leftRekha, layer )
 				
-				# draw a rekha from the middle to the right if there is a rekha anchor:
-				if layer.anchorForName_("rekha"):
-					xOrigin = layer.anchors["rekha"].position.x
+					# draw a rekha from the middle to the right if there is a rekha anchor:
+					if layer.anchorForName_("rekha"):
+						xOrigin = layer.anchors["rekha"].position.x
 				
-				# define rekha rectangle:
-				rekha = NSRect()
-				rekha.origin = NSPoint( xOrigin, rekhaHeight )
-				rekha.size = NSSize( layer.width + rekhaOvershoot - xOrigin, rekhaThickness )
-				self.drawRekhaInLayer( rekha, layer )
+					# define rekha rectangle:
+					rekha = NSRect()
+					rekha.origin = NSPoint( xOrigin, rekhaHeight )
+					rekha.size = NSSize( layer.width + rekhaOvershoot - xOrigin, rekhaThickness )
+					self.drawRekhaInLayer( rekha, layer )
 				
-				if decompose:
-					layer.decomposeComponents()
+					if decompose:
+						layer.decomposeComponents()
 	
 	@objc.python_method
 	def drawRekhaInLayer(self, rekha, layer):

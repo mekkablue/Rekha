@@ -13,9 +13,9 @@
 	<key>CFBundleName</key>
 	<string>RekhaMaker</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.5</string>
+	<string>2.0.6</string>
 	<key>CFBundleVersion</key>
-	<string>14</string>
+	<string>15</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Rainer Erich Scheichelbauer, 2016</string>
 	<key>NSPrincipalClass</key>
@@ -29,6 +29,6 @@
 	<key>productPageURL</key>
 	<string>https://github.com/mekkablue/Rekha</string>
 	<key>productReleaseNotes</key>
-	<string>updates for Python 3</string>
+	<string>Prevent a crash when exporting incompatible glyphs (thx Tanya)</string>
 </dict>
 </plist>

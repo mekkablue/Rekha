@@ -84,63 +84,64 @@ class RekhaViewer(ReporterPlugin):
 	@objc.python_method
 	def drawRekha(self, layer):
 		defaults = (700,100,20) # height, thickness, overshoot
-		thisGlyph = layer.glyph()
-		if thisGlyph and thisGlyph.script in ("gurmukhi","devanagari","bengali"):
-			if thisGlyph.category == "Letter":
-				RekhaInfo = layer.associatedFontMaster().customParameters["rekha"]
-				if not RekhaInfo:
-					RekhaInfo = layer.associatedFontMaster().customParameters["Rekha"]
-				if not RekhaInfo:
-					RekhaInfo = ",".join([str(x) for x in defaults])
-				RekhaValues = [float(piece) for piece in RekhaInfo.split(',')]
+		if layer:
+			thisGlyph = layer.glyph()
+			if thisGlyph and thisGlyph.script in ("gurmukhi","devanagari","bengali"):
+				if thisGlyph.category == "Letter":
+					RekhaInfo = layer.associatedFontMaster().customParameters["rekha"]
+					if not RekhaInfo:
+						RekhaInfo = layer.associatedFontMaster().customParameters["Rekha"]
+					if not RekhaInfo:
+						RekhaInfo = ",".join([str(x) for x in defaults])
+					RekhaValues = [float(piece) for piece in RekhaInfo.split(',')]
 				
-				try:
-					RekhaHeight = RekhaValues[0]
-				except:
-					RekhaHeight = defaults[0]
+					try:
+						RekhaHeight = RekhaValues[0]
+					except:
+						RekhaHeight = defaults[0]
 					
-				try:
-					RekhaThickness = RekhaValues[1]
-				except:
-					RekhaThickness = defaults[1]
+					try:
+						RekhaThickness = RekhaValues[1]
+					except:
+						RekhaThickness = defaults[1]
 				
-				try:
-					RekhaOvershoot = RekhaValues[2]
-				except:
-					RekhaOvershoot = defaults[2]
+					try:
+						RekhaOvershoot = RekhaValues[2]
+					except:
+						RekhaOvershoot = defaults[2]
 		
-				xOrigin = -RekhaOvershoot
+					xOrigin = -RekhaOvershoot
 				
-				# add caps if present in font:
-				leftCap, rightCap = None, None
-				font = layer.parent.parent
-				if font:
-					generalCap = "_cap.rekha"
-					if font.glyphs[generalCap]:
-						leftCap, rightCap = generalCap, generalCap
-					if font.glyphs[generalCap+"Left"]:
-						leftCap = generalCap+"Left"
-					if font.glyphs[generalCap+"Right"]:
-						rightCap = generalCap+"Right"
+					# add caps if present in font:
+					leftCap, rightCap = None, None
+					font = layer.parent.parent
+					if font:
+						generalCap = "_cap.rekha"
+						if font.glyphs[generalCap]:
+							leftCap, rightCap = generalCap, generalCap
+						if font.glyphs[generalCap+"Left"]:
+							leftCap = generalCap+"Left"
+						if font.glyphs[generalCap+"Right"]:
+							rightCap = generalCap+"Right"
 				
-				if layer.anchorForName_("rekha_stop"):
-					stopPosition = layer.anchors["rekha_stop"].position.x
-					LeftRekha = NSRect()
-					LeftRekha.origin = NSPoint(xOrigin, RekhaHeight)
-					LeftRekha.size = NSSize(stopPosition-xOrigin, RekhaThickness)
-					LeftRekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(LeftRekha, layer.associatedMasterId, leftCap, rightCap, font)
-					LeftRekhaBezierPath.fill()
+					if layer.anchorForName_("rekha_stop"):
+						stopPosition = layer.anchors["rekha_stop"].position.x
+						LeftRekha = NSRect()
+						LeftRekha.origin = NSPoint(xOrigin, RekhaHeight)
+						LeftRekha.size = NSSize(stopPosition-xOrigin, RekhaThickness)
+						LeftRekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(LeftRekha, layer.associatedMasterId, leftCap, rightCap, font)
+						LeftRekhaBezierPath.fill()
 					
-				if layer.anchorForName_("rekha"):
-					xOrigin = layer.anchors["rekha"].position.x
+					if layer.anchorForName_("rekha"):
+						xOrigin = layer.anchors["rekha"].position.x
 		
-				Rekha = NSRect()
-				Rekha.origin = NSPoint(xOrigin, RekhaHeight)
-				Rekha.size = NSSize(layer.width+RekhaOvershoot-xOrigin, RekhaThickness)
-				RekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(Rekha, layer.associatedMasterId, leftCap, rightCap)
-				# only draw if not None:
-				if RekhaBezierPath:
-					RekhaBezierPath.fill()
+					Rekha = NSRect()
+					Rekha.origin = NSPoint(xOrigin, RekhaHeight)
+					Rekha.size = NSSize(layer.width+RekhaOvershoot-xOrigin, RekhaThickness)
+					RekhaBezierPath = self.rekhaBezierForMasterIDWithCapInFont(Rekha, layer.associatedMasterId, leftCap, rightCap)
+					# only draw if not None:
+					if RekhaBezierPath:
+						RekhaBezierPath.fill()
 	
 	@objc.python_method
 	def background(self, layer):
