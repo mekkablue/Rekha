@@ -15,6 +15,7 @@ from __future__ import division, print_function, unicode_literals
 import objc
 from GlyphsApp import *
 from GlyphsApp.plugins import *
+from AppKit import NSBezierPath, NSPoint, NSColor, NSRect, NSSize
 
 class RekhaViewer(ReporterPlugin):
 	
@@ -114,14 +115,14 @@ class RekhaViewer(ReporterPlugin):
 				
 					# add caps if present in font:
 					leftCap, rightCap = None, None
-					font = layer.parent.parent
+					font = layer.font()
 					if font:
 						generalCap = "_cap.rekha"
-						if font.glyphs[generalCap]:
+						if font.glyphForName_(generalCap):
 							leftCap, rightCap = generalCap, generalCap
-						if font.glyphs[generalCap+"Left"]:
+						if font.glyphForName_(generalCap+"Left"):
 							leftCap = generalCap+"Left"
-						if font.glyphs[generalCap+"Right"]:
+						if font.glyphForName_(generalCap+"Right"):
 							rightCap = generalCap+"Right"
 				
 					if layer.anchorForName_("rekha_stop"):

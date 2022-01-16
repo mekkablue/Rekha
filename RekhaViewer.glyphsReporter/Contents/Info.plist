@@ -13,9 +13,9 @@
 	<key>CFBundleName</key>
 	<string>RekhaViewer</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0.7</string>
+	<string>2.0.8</string>
 	<key>CFBundleVersion</key>
-	<string>16</string>
+	<string>17</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Rainer Erich Scheichelbauer, 2016</string>
 	<key>NSPrincipalClass</key>
@@ -29,6 +29,6 @@
 	<key>productPageURL</key>
 	<string>https://github.com/mekkablue/Rekha</string>
 	<key>productReleaseNotes</key>
-	<string>Prevent a potential crash (thx Tanya)</string>
+	<string>Circumvent an error when the font does not have _cap.rekha glyphs (thx Tanya)</string>
 </dict>
 </plist>

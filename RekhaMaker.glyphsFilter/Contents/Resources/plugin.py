@@ -233,9 +233,9 @@ class RekhaMaker(FilterWithDialog):
 				
 				# determine if a left or right or a general cap is present:
 				insertedCapName = None
-				if font.glyphs[capNames[i]]:
+				if font.glyphForName_(capNames[i]):
 					insertedCapName = capNames[i]
-				elif font.glyphs[capNames[0]]:
+				elif font.glyphForName_(capNames[0]):
 					insertedCapName = capNames[0]
 				
 				# if so, add the cap on the appropriate node:
