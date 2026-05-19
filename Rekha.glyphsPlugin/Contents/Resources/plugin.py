@@ -343,7 +343,7 @@ class RekhaViewer(ReporterPlugin):
 
 	@objc.python_method
 	def background(self, layer):
-		NSColor.placeholderTextColor().set()
+		NSColor.textColor().colorWithAlphaComponent_(0.7).set()
 		self._drawRekha(layer)
 
 	def needsExtraMainOutlineDrawingForInactiveLayer_(self, layer):
