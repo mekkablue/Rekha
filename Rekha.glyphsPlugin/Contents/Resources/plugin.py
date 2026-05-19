@@ -151,25 +151,42 @@ def _rekhaParamsForMaster(master):
 def _rekhaRects(layer, height, thickness, overshoot):
 	"""
 	Return a list of NSRect segments for the rekha in layer.
-	Handles rekha_stop (left partial rekha) and rekha (start offset) anchors.
-	"""
-	rects = []
-	xOrigin = -overshoot
 
-	if layer.anchorForName_("rekha_stop"):
-		stopX = layer.anchors["rekha_stop"].position.x
+	All anchors whose name starts with 'rekha' are sorted by x position.
+	Anchors starting with 'rekha_stop' (any suffix) end the current segment;
+	all other 'rekha*' anchors start or resume a segment at that x.
+	With no anchors a single full-width segment is produced.
+	"""
+	rects  = []
+	xStart = -overshoot
+	active = True  # rekha is on from the left edge
+
+	anchors = sorted(
+		[a for a in layer.anchors if a.name.startswith("rekha")],
+		key=lambda a: a.position.x,
+	)
+
+	for anchor in anchors:
+		ax = anchor.position.x
+		if anchor.name.startswith("rekha_stop"):
+			if active:
+				r = NSRect()
+				r.origin = NSPoint(xStart, height)
+				r.size   = NSSize(ax - xStart, thickness)
+				rects.append(r)
+				active = False
+		else:
+			# Non-stop rekha anchor: start (or resume) from this x.
+			# When already active this acts as an indent of the start position.
+			xStart = ax
+			active = True
+
+	if active:
 		r = NSRect()
-		r.origin = NSPoint(xOrigin, height)
-		r.size   = NSSize(stopX - xOrigin, thickness)
+		r.origin = NSPoint(xStart, height)
+		r.size   = NSSize(layer.width + overshoot - xStart, thickness)
 		rects.append(r)
 
-	if layer.anchorForName_("rekha"):
-		xOrigin = layer.anchors["rekha"].position.x
-
-	r = NSRect()
-	r.origin = NSPoint(xOrigin, height)
-	r.size   = NSSize(layer.width + overshoot - xOrigin, thickness)
-	rects.append(r)
 	return rects
 
 
