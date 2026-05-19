@@ -16,7 +16,7 @@ from __future__ import division, print_function, unicode_literals
 import objc
 from GlyphsApp import *
 from GlyphsApp.plugins import *
-from AppKit import NSColor, NSPoint, NSRect, NSSize
+from AppKit import NSColor, NSPoint, NSRect, NSSize, NSRectFill, NSBezierPath, NSAffineTransform, NSMidY
 
 SUPPORTED_SCRIPTS = ("gurmukhi", "devanagari", "bengali")
 PREF = "com.mekkablue.RekhaMaker"  # keep existing pref domain for backward compatibility
@@ -32,10 +32,10 @@ def _makeRekhaPath(rekha):
 	w, h   = rekha.size.width, rekha.size.height
 	path = GSPath()
 	for pos in (
-		NSPoint(ox,     oy),
+		NSPoint(ox,	 oy),
 		NSPoint(ox + w, oy),
 		NSPoint(ox + w, oy + h),
-		NSPoint(ox,     oy + h),
+		NSPoint(ox,	 oy + h),
 	):
 		node = GSNode()
 		node.position = pos
@@ -138,7 +138,7 @@ def _rekhaParamsForMaster(master):
 					k, v = part.split(":", 1)
 					kvs[k.strip()] = float(v.strip())
 			return (
-				kvs.get("height",    defaults[0]),
+				kvs.get("height",	defaults[0]),
 				kvs.get("thickness", defaults[1]),
 				kvs.get("overshoot", defaults[2]),
 			)
@@ -208,10 +208,10 @@ def _decomposeIndicComponents(layer):
 
 class RekhaMaker(FilterWithDialog):
 
-	dialog                 = objc.IBOutlet()
-	rekhaHeightField       = objc.IBOutlet()
-	rekhaThicknessField    = objc.IBOutlet()
-	rekhaOvershootField    = objc.IBOutlet()
+	dialog				 = objc.IBOutlet()
+	rekhaHeightField	   = objc.IBOutlet()
+	rekhaThicknessField	= objc.IBOutlet()
+	rekhaOvershootField	= objc.IBOutlet()
 	rekhaDecomposeCheckbox = objc.IBOutlet()
 
 	@objc.python_method
@@ -222,7 +222,7 @@ class RekhaMaker(FilterWithDialog):
 
 	@objc.python_method
 	def start(self):
-		height    = Glyphs.defaults[PREF + ".rekhaHeight"]    or 700.0
+		height	= Glyphs.defaults[PREF + ".rekhaHeight"]	or 700.0
 		thickness = Glyphs.defaults[PREF + ".rekhaThickness"] or 100.0
 		overshoot = Glyphs.defaults[PREF + ".rekhaOvershoot"] or 20.0
 
@@ -238,7 +238,7 @@ class RekhaMaker(FilterWithDialog):
 				except Exception as e:
 					print("⚠️ Could not read Rekha master parameter: %s" % e)
 
-		Glyphs.defaults[PREF + ".rekhaHeight"]    = height
+		Glyphs.defaults[PREF + ".rekhaHeight"]	= height
 		Glyphs.defaults[PREF + ".rekhaThickness"] = thickness
 		Glyphs.defaults[PREF + ".rekhaOvershoot"] = overshoot
 		if Glyphs.defaults[PREF + ".decompose"] is None:
@@ -273,12 +273,12 @@ class RekhaMaker(FilterWithDialog):
 	@objc.python_method
 	def filter(self, layer, inEditView, customParameters):
 		if customParameters:
-			height    = float(customParameters['height'])    if 'height'    in customParameters else 700.0
+			height	= float(customParameters['height'])	if 'height'	in customParameters else 700.0
 			thickness = float(customParameters['thickness']) if 'thickness' in customParameters else 100.0
 			overshoot = float(customParameters['overshoot']) if 'overshoot' in customParameters else 20.0
 			decompose = bool(customParameters['decompose'])  if 'decompose' in customParameters else False
 		else:
-			height    = float(Glyphs.defaults[PREF + ".rekhaHeight"]    or 700.0)
+			height	= float(Glyphs.defaults[PREF + ".rekhaHeight"]	or 700.0)
 			thickness = float(Glyphs.defaults[PREF + ".rekhaThickness"] or 100.0)
 			overshoot = float(Glyphs.defaults[PREF + ".rekhaOvershoot"] or 20.0)
 			decompose = bool(Glyphs.defaults[PREF + ".decompose"])
@@ -317,13 +317,16 @@ class RekhaMaker(FilterWithDialog):
 # ---------------------------------------------------------------------------
 
 class RekhaViewer(ReporterPlugin):
+	@objc.python_method
+	def start(self):
+		GSCallbackHandler.addCallback_forOperation_(self, "DrawFontView")
 
 	@objc.python_method
 	def settings(self):
 		self.menuName = "Rekha"
 
 	@objc.python_method
-	def _drawRekha(self, layer):
+	def _drawRekha(self, layer, scale=None):
 		if not layer:
 			return
 		glyph = layer.glyph()
@@ -338,6 +341,8 @@ class RekhaViewer(ReporterPlugin):
 		masterID = layer.associatedMasterId
 		for rect in _rekhaRects(layer, height, thickness, overshoot):
 			bp = _rekhaBezierPath(rect, masterID, font, rightCap, leftCap)
+			if scale is not None:
+				bp.transformUsingAffineTransform_(scale)
 			if bp:
 				bp.fill()
 
@@ -363,6 +368,51 @@ class RekhaViewer(ReporterPlugin):
 	def preview(self, layer):
 		NSColor.textColor().set()
 		self._drawRekha(layer)
+		
+	@objc.python_method
+	def fitLayerInFrame(self, layer, frame):
+		ascender, descender = layer.ascender, layer.descender
+		master = layer.master
+		previewAscender = master.customParameters["Preview Ascender"]
+		if not previewAscender is None:
+			ascender = abs(previewAscender)
+		previewDescender = master.customParameters["Preview Descender"]
+		if not previewDescender is None:
+			descender = -abs(previewDescender)
+		
+		scaleFactor = frame.size.height / ((ascender - descender) * 1.3)
+		scale = NSAffineTransform.transform()
+		scale.translateXBy_yBy_(
+			frame.origin.x + (frame.size.width - (layer.width * scaleFactor)) / 2.0,
+			NSMidY(frame) - (ascender * scaleFactor * 0.5) - (descender * scaleFactor * 0.125),
+		)
+		scale.scaleBy_(scaleFactor)
+		return scale
+	
+	# @objc.signature(b'v@:@{CGRect={CGPoint=dd}{CGSize=dd}}')
+	# def drawFontViewBackgroundForLayer_inFrame_(self, layer, frame):
+	# 	NSColor.yellowColor().setFill()
+	# 	NSRectFill(frame)
+
+	@objc.signature(b'v@:@{CGRect={CGPoint=dd}{CGSize=dd}}')
+	def drawFontViewForegroundForLayer_inFrame_(self, layer, frame):
+		# see if layer is eligible
+		if not layer.shapes:
+			return
+		glyph = layer.parent
+		if not glyph:
+			return
+		if not isinstance(glyph, GSGlyph):
+			return
+		if not glyph.script in SUPPORTED_SCRIPTS:
+			return
+		if not glyph.category == "Letter":
+			return
+
+		# draw
+		NSColor.labelColor().set()
+		scale = self.fitLayerInFrame(layer, frame)
+		self._drawRekha(layer, scale=scale)
 
 	@objc.python_method
 	def __file__(self):

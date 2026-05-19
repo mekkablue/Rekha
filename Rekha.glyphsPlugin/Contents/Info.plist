@@ -13,11 +13,11 @@
 	<key>CFBundleName</key>
 	<string>Rekha</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.0</string>
+	<string>4.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>12</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright, Rainer Erich Scheichelbauer, 2016–2024</string>
+	<string>Copyright, Rainer Erich Scheichelbauer, 2016–2026</string>
 	<key>Principal Classes</key>
 	<array>
 		<string>RekhaMaker</string>
@@ -32,6 +32,6 @@
 	<key>productPageURL</key>
 	<string>https://github.com/mekkablue/Rekha</string>
 	<key>productReleaseNotes</key>
-	<string>Merged RekhaMaker, RekhaViewer, and RekhaBrekha into one plug-in.</string>
+	<string>Added preview in Font View.</string>
 </dict>
 </plist>
