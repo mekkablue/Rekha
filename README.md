@@ -52,7 +52,9 @@ You can copy the filter code (for pasting in *Font Info > Export > Custom Parame
 
 If you have a cap component called `_cap.rekha` in your font, it will be automatically inserted (and fitted) at the end of your Rekha line. 
 
-Hint: Draw the cap counter-clockwise, and vertically at the origin point, with the open path ends pointing upwards. The first point should have x=0. Make it as wide as the Rekha line is high.
+Hint: Draw the cap counter-clockwise, and vertically at the origin point, with the open path ends pointing upwards. The first point should have x=0. Make it as wide as the Rekha line is high:
+
+![Cap component for the rekha stroke ending](rekhacap.png)
 
 Power user tip: If you want to have different strokebutts for the left and right end of the stroke, call them `_cap.rekhaLeft` and/or `_cap.rekhaRight`, respectively.
 
