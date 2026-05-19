@@ -18,8 +18,11 @@
 	<string>1</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Rainer Erich Scheichelbauer, 2016–2024</string>
-	<key>NSPrincipalClass</key>
-	<string>RekhaMaker</string>
+	<key>Principal Classes</key>
+	<array>
+		<string>RekhaMaker</string>
+		<string>RekhaViewer</string>
+	</array>
 	<key>PyMainFileNames</key>
 	<array>
 		<string>plugin.py</string>
