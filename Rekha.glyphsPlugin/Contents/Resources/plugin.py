@@ -108,20 +108,44 @@ def _rekhaBezierPath(rekha, masterID, font, rightCap=None, leftCap=None):
 
 
 def _rekhaParamsForMaster(master):
-	"""Return (height, thickness, overshoot) from master Rekha parameter, or defaults."""
+	"""Return (height, thickness, overshoot) from master custom parameters, or defaults.
+
+	Checks (in order):
+	  1. 'Rekha' / 'rekha'  →  comma-separated  "700, 100, 20"
+	  2. 'RekhaMaker' filter parameter  →  "RekhaMaker; height:560; thickness:70; overshoot:0; …"
+	"""
 	defaults = (700.0, 100.0, 20.0)
+
 	param = master.customParameters["Rekha"] or master.customParameters["rekha"]
-	if not param:
-		return defaults
-	try:
-		vals = [float(x.strip()) for x in param.split(",")]
-		return (
-			vals[0] if len(vals) > 0 else defaults[0],
-			vals[1] if len(vals) > 1 else defaults[1],
-			vals[2] if len(vals) > 2 else defaults[2],
-		)
-	except Exception:
-		return defaults
+	if param:
+		try:
+			vals = [float(x.strip()) for x in param.split(",")]
+			return (
+				vals[0] if len(vals) > 0 else defaults[0],
+				vals[1] if len(vals) > 1 else defaults[1],
+				vals[2] if len(vals) > 2 else defaults[2],
+			)
+		except Exception:
+			pass
+
+	filterParam = master.customParameters["RekhaMaker"]
+	if filterParam:
+		try:
+			kvs = {}
+			for part in filterParam.split(";"):
+				part = part.strip()
+				if ":" in part:
+					k, v = part.split(":", 1)
+					kvs[k.strip()] = float(v.strip())
+			return (
+				kvs.get("height",    defaults[0]),
+				kvs.get("thickness", defaults[1]),
+				kvs.get("overshoot", defaults[2]),
+			)
+		except Exception:
+			pass
+
+	return defaults
 
 
 def _rekhaRects(layer, height, thickness, overshoot):
