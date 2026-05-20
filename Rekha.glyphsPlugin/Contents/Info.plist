@@ -13,15 +13,16 @@
 	<key>CFBundleName</key>
 	<string>Rekha</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.0.1</string>
+	<string>4.0.2</string>
 	<key>CFBundleVersion</key>
-	<string>12</string>
+	<string>13</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Rainer Erich Scheichelbauer, 2016–2026</string>
 	<key>Principal Classes</key>
 	<array>
 		<string>RekhaMaker</string>
 		<string>RekhaViewer</string>
+		<string>RekhaCapMenu</string>
 	</array>
 	<key>PyMainFileNames</key>
 	<array>
@@ -32,6 +33,6 @@
 	<key>productPageURL</key>
 	<string>https://github.com/mekkablue/Rekha</string>
 	<key>productReleaseNotes</key>
-	<string>Added preview in Font View.</string>
+	<string>Added menu item ‘Glyph > Add Rekha Cap’.</string>
 </dict>
 </plist>
