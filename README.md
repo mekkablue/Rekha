@@ -56,7 +56,9 @@ Hint: Draw the cap counter-clockwise, and vertically at the origin point, with t
 
 ![Cap component for the rekha stroke ending](rekhacap.png)
 
-Power user tip: If you want to have different strokebutts for the left and right end of the stroke, call them `_cap.rekhaLeft` and/or `_cap.rekhaRight`, respectively.
+Power user tip 1: You can also run _Glyph > Add Rekha Cap_ to achieve the same goal. The menu item is only active if the current font file has Devanagari glyphs. It will not overwrite an existing `_cap.rekha`.
+
+Power user tip 2: If you want to have different strokebutts for the left and right end of the stroke, call them `_cap.rekhaLeft` and/or `_cap.rekhaRight`, respectively.
 
 ### Requirements
 
