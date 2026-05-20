@@ -16,7 +16,7 @@ from __future__ import division, print_function, unicode_literals
 import objc
 from GlyphsApp import *
 from GlyphsApp.plugins import *
-from AppKit import NSColor, NSPoint, NSRect, NSSize
+from AppKit import NSColor, NSMenuItem, NSPoint, NSRect, NSSize
 
 SUPPORTED_SCRIPTS = ("gurmukhi", "devanagari", "bengali")
 PREF = "com.mekkablue.RekhaMaker"  # keep existing pref domain for backward compatibility
@@ -188,6 +188,24 @@ def _rekhaRects(layer, height, thickness, overshoot):
 		rects.append(r)
 
 	return rects
+
+
+def _drawRekhaCap(layer, rekhaHeight=100):
+	"""Add an open rekha cap path to layer. rekhaHeight should equal the rekha thickness."""
+	coords = (
+		(0, 5),
+		(0, -10),
+		(rekhaHeight, -10),
+		(rekhaHeight, 5),
+	)
+	path = GSPath()
+	for coord in coords:
+		path.nodes.append(GSNode(coord))
+	path.closed = False
+	try:
+		layer.shapes.append(path)
+	except AttributeError:
+		layer.paths.append(path)
 
 
 def _decomposeIndicComponents(layer):
@@ -363,6 +381,63 @@ class RekhaViewer(ReporterPlugin):
 	def preview(self, layer):
 		NSColor.textColor().set()
 		self._drawRekha(layer)
+
+	@objc.python_method
+	def __file__(self):
+		"""Please leave this method unchanged"""
+		return __file__
+
+
+# ---------------------------------------------------------------------------
+# RekhaCapMenu – general plug-in: Glyph menu item "Add Rekha Cap"
+# ---------------------------------------------------------------------------
+
+class RekhaCapMenu(GeneralPlugin):
+
+	@objc.python_method
+	def settings(self):
+		self.name = "RekhaCapMenu"
+
+	@objc.python_method
+	def start(self):
+		menuItem = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+			"Add Rekha Cap",
+			self.addRekhaCap_,
+			"",
+		)
+		menuItem.setTarget_(self)
+		Glyphs.menu[GLYPH_MENU].append(menuItem)
+
+	@objc.python_method
+	def _hasDevanagari(self):
+		font = Glyphs.font
+		return bool(font) and any(g.script == "devanagari" for g in font.glyphs)
+
+	def validateMenuItem_(self, menuItem):
+		"""Gray out the item when the frontmost font has no Devanagari glyph."""
+		return self._hasDevanagari()
+
+	def addRekhaCap_(self, sender):
+		font = Glyphs.font
+		if not font:
+			return
+
+		capName = "_cap.rekha"
+
+		if not font.glyphForName_(capName):
+			capGlyph = GSGlyph()
+			capGlyph.name = capName
+			font.glyphs.append(capGlyph)
+
+		capGlyph = font.glyphForName_(capName)
+
+		for layer in capGlyph.layers:
+			if layer.associatedMasterId == layer.layerId:  # master layers only
+				master = layer.associatedFontMaster()
+				_, thickness, _ = _rekhaParamsForMaster(master)
+				_drawRekhaCap(layer, thickness)
+
+		font.newTab("/" + capName)
 
 	@objc.python_method
 	def __file__(self):
