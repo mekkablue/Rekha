@@ -29,6 +29,8 @@ The preview will respect any `rekha` and `rekha_stop` anchors, if present in the
 
 ![View > Show Rekha](rekha.png)
 
+<small>Font displayed: *Crag Text* by Zhirui Zhang 张致锐</small>
+
 ### Filter > RekhaMaker
 
 1. Open a glyph in Edit View, or select any number of glyphs in Font or Edit View.
@@ -38,6 +40,8 @@ The preview will respect any `rekha` and `rekha_stop` anchors, if present in the
 The filter will respect any `rekha` and `rekha_stop` anchors, if present in the glyph.
 
 ![RekhaMaker](rekhamaker.png)
+
+<small>Font displayed: *Crag Text* by Zhirui Zhang 张致锐</small>
 
 Alternatively, you can use it as a custom parameter on the whole font at export time. Copy the parameter from the gear menu in the lower left. Then paste it in the *Custom Parameters* field in your instance (*File > Font Info > Exports*, **not** *Masters*). For example:
 
