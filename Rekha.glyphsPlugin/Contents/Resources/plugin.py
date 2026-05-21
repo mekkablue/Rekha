@@ -344,7 +344,7 @@ class RekhaViewer(ReporterPlugin):
 		self.menuName = "Rekha"
 
 	@objc.python_method
-	def _drawRekha(self, layer, scale=None):
+	def _drawRekha(self, layer, scale=None, forceFill=False):
 		if not layer:
 			return
 		glyph = layer.glyph()
@@ -362,7 +362,12 @@ class RekhaViewer(ReporterPlugin):
 			if scale is not None:
 				bp.transformUsingAffineTransform_(scale)
 			if bp:
-				bp.fill()
+				if forceFill or Glyphs.defaults["fillPreview"]:
+					bp.fill()
+				else:
+					NSColor.textColor().setStroke()
+					bp.setLineWidth_(1.0/self.getScale())
+					bp.stroke()
 
 	@objc.python_method
 	def background(self, layer):
@@ -430,7 +435,7 @@ class RekhaViewer(ReporterPlugin):
 		# draw
 		NSColor.labelColor().set()
 		scale = self.fitLayerInFrame(layer, frame)
-		self._drawRekha(layer, scale=scale)
+		self._drawRekha(layer, scale=scale, forceFill=True)
 
 	@objc.python_method
 	def __file__(self):
