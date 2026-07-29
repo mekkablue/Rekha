@@ -14,8 +14,8 @@ from __future__ import division, print_function, unicode_literals
 ###########################################################################################################
 
 import objc
-from GlyphsApp import *
-from GlyphsApp.plugins import *
+from GlyphsApp import Glyphs, GSPath, GSNode, GSHint, GSGlyph, LINE, CAP, GSCallbackHandler, GLYPH_MENU
+from GlyphsApp.plugins import FilterWithDialog, ReporterPlugin, GeneralPlugin
 from AppKit import NSColor, NSPoint, NSRect, NSSize, NSRectFill, NSBezierPath, NSAffineTransform, NSMidY, NSMenuItem
 
 SUPPORTED_SCRIPTS = ("gurmukhi", "devanagari", "bengali")
@@ -499,4 +499,3 @@ class RekhaCapMenu(GeneralPlugin):
 	def __file__(self):
 		"""Please leave this method unchanged"""
 		return __file__
-
